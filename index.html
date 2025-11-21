@@ -29,69 +29,14 @@
     <!-- LEFT: 설정 -->
     <div class="card">
       <div class="section-title">1) 검사 설정</div>
-
-      <div style="margin-bottom:10px">
-        <div class="muted">검사 난이도</div>
-        <div class="row" style="margin-top:8px">
-          <button class="mode-btn" id="modeSimple">간단 검사</button>
-          <button class="mode-btn" id="modeDeep">정밀 검사</button>
-        </div>
-      </div>
-
-      <div style="margin-top:12px">
-        <div class="muted">성별</div>
-        <div class="row" style="margin-top:8px">
-          <button class="gender-btn" id="maleBtn">남자</button>
-          <button class="gender-btn" id="femaleBtn">여자</button>
-        </div>
-      </div>
-
-      <div style="margin-top:12px">
-        <div class="muted">나이</div>
-        <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
-          <input type="range" id="ageRange" min="0" max="120" value="30" class="range">
-          <input type="number" id="ageNum" min="0" max="120" value="30">
-        </div>
-      </div>
-
-      <div style="margin-top:12px">
-        <div class="muted">기저질환(선택)</div>
-        <div class="row" style="margin-top:8px">
-          <label><input type="checkbox" id="chronic1"> 고혈압</label>
-          <label><input type="checkbox" id="chronic2"> 당뇨</label>
-          <label><input type="checkbox" id="chronic3"> 심질환</label>
-        </div>
-      </div>
-
-      <div style="margin-top:14px">
-        <div class="section-title">선택한 증상</div>
-        <div id="selectedChips" class="chips"></div>
-
-        <div style="margin-top:10px">
-          <button class="generate-btn" id="btnGenerate">GPT에 보낼 내용 만들기 (복사)</button>
-          <div id="copyNote" class="copy-note">복사 완료 — GPT창에 붙여넣기 하세요.</div>
-        </div>
-      </div>
-
+      ...
       <div class="ad-slot" style="margin-top:16px">광고 슬롯 (좌측 하단)</div>
     </div>
 
     <!-- CENTER: 증상 검색 + 리스트 -->
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div class="section-title">2) 증상 선택 (카테고리)</div>
-          <div class="muted">카테고리 선택 → 아래에서 세부 증상 체크 (우클릭/롱프레스 = 자세히 보기)</div>
-        </div>
-        <div style="display:flex;gap:8px">
-          <input id="quickSearch" class="searchbar" placeholder="증상검색 (예: 기침, 두통, 복통)" />
-        </div>
-      </div>
-
-      <div class="category-row" id="categoryRow"></div>
-
+      ...
       <div class="symptom-list" id="symptomList" tabindex="0"></div>
-
       <div style="margin-top:12px" class="muted">우클릭 또는 모바일 롱프레스 → 증상별 상세 설명 보기</div>
     </div>
 
@@ -108,13 +53,14 @@
 
       <div style="margin-top:12px" class="section-title">광고(우측)</div>
       <div class="ad-slot" id="kakao-ad-slot">
-        <!-- 카카오 광고 인서트: 실제 배포 전 카카오 관리자에서 단위 확인 필요 -->
+        <!-- 삽입된 카카오 광고 인서트 -->
         <ins class="kakao_ad_area"
              style="display:none;"
              data-ad-unit="DAN-zaoVahGFL19x5VCC"
              data-ad-width="160"
              data-ad-height="600"></ins>
       </div>
+
     </div>
 
   </div>
@@ -134,6 +80,35 @@
 
 <!-- 카카오 광고 스크립트 (페이지에 한 번만 포함) -->
 <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+
+<!-- 광고 인서트 활성화 스크립트: ba.min.js 로드 후 ins 표시 보장 -->
+<script>
+(function ensureKakaoAdVisible(){
+  // ba.min.js가 로드되면 kakao.ads가 생기거나 ins가 처리됩니다.
+  // 그래도 안전하게 ins 요소를 보이게 하고, 만약 광고 스크립트가 처리하면 내부에서 override됩니다.
+  function showIns(){
+    const ins = document.querySelector('#kakao-ad-slot .kakao_ad_area');
+    if(!ins) return;
+    // show element so ba.min.js가 영역을 찾을 수 있게 함
+    ins.style.display = 'block';
+  }
+
+  // onload로도 보장
+  window.addEventListener('load', ()=>{
+    // 약간의 지연을 줘서 ba.min.js가 먼저 초기화할 기회를 줌
+    setTimeout(showIns, 800);
+  });
+
+  // 안전망: 만약 ba 스크립트가 늦게 로드되면 mutation observer로 ins 추가 감지
+  const slot = document.getElementById('kakao-ad-slot');
+  if(slot){
+    const mo = new MutationObserver((mutations)=>{
+      mutations.forEach(()=> showIns());
+    });
+    mo.observe(slot, {childList:true, subtree:true});
+  }
+})();
+</script>
 
 <script src="assets/js/app.js"></script>
 </body>
