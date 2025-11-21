@@ -133,13 +133,15 @@
        data-ad-unit="DAN-zaoVahGFL19x5VCC"
        data-ad-width="160"
        data-ad-height="600"></ins>
-  <div class="ad-fallback" id="adFallback" style="display:none;">광고 영역 — 현재 광고가 준비되지 않았습니다.</div>
+  <div class="ad-fallback-red" id="adFallback" style="display:none;">
+    광고 영역 — 현재 광고가 준비되지 않았습니다.
+  </div>
 </div>
 
 <!-- 카카오 광고 스크립트 (한 번만 포함) -->
 <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
 
-<!-- 광고 초기화 / 닫기 / 대체 콘텐츠 처리 -->
+<!-- 광고 초기화 / 닫기 / 대체 콘텐츠 처리 (빨간색 대체 박스 포함) -->
 <script>
 (async function setupGlobalAd(){
   const overlay = document.getElementById('global-ad-overlay');
@@ -148,15 +150,22 @@
   const closeBtn = document.getElementById('adCloseBtn');
   const STORAGE_KEY = 'globalAdClosed_v1';
 
+  // 닫기 상태 확인
   if(localStorage.getItem(STORAGE_KEY) === '1'){
     overlay.style.display = 'none';
     return;
   }
 
+  // ba 스크립트 보장(이미 있으면 패스)
   function ensureBa(){
     return new Promise((resolve)=>{
       const existing = Array.from(document.scripts).find(s=>s.src && s.src.includes('t1.daumcdn.net'));
-      if(existing) { existing.addEventListener('load', ()=>resolve(true)); return resolve(true); }
+      if(existing) {
+        if(existing.readyState === 'complete' || existing.readyState === 'loaded') return resolve(true);
+        existing.addEventListener('load', ()=>resolve(true));
+        existing.addEventListener('error', ()=>resolve(false));
+        return;
+      }
       const s = document.createElement('script');
       s.src = "//t1.daumcdn.net/kas/static/ba.min.js";
       s.async = true;
@@ -168,13 +177,17 @@
 
   const ok = await ensureBa();
   if(ok){
+    // 광고 스크립트가 있으면 ins 보이게
     ins.style.display = 'block';
   } else {
+    // 로드 실패 시 빨간색 대체박스 노출
     ins.style.display = 'none';
     fallback.style.display = 'block';
   }
 
+  // 일정 시간 후에도 광고가 실제로 렌더링되지 않으면 대체박스(red) 표시
   setTimeout(()=> {
+    // 실제 광고는 iframe이나 img로 렌더링됨
     const rendered = ins.querySelectorAll('iframe, img').length > 0;
     if(!rendered){
       ins.style.display = 'none';
@@ -182,19 +195,22 @@
     } else {
       fallback.style.display = 'none';
     }
-  }, 5000);
+  }, 4500); // 4.5초 후 판단
 
+  // 닫기 처리 (한 번 닫으면 로컬스토리지에 저장)
   closeBtn.addEventListener('click', ()=> {
     overlay.style.display = 'none';
     localStorage.setItem(STORAGE_KEY, '1');
   });
 
+  // ESC로도 닫기
   document.addEventListener('keydown', (e)=> {
     if(e.key === 'Escape'){
       overlay.style.display = 'none';
       localStorage.setItem(STORAGE_KEY, '1');
     }
   });
+
 })();
 </script>
 
