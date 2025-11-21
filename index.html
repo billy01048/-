@@ -107,7 +107,14 @@
       </div>
 
       <div style="margin-top:12px" class="section-title">광고(우측)</div>
-      <div class="ad-slot">광고 슬롯 (우측)</div>
+      <div class="ad-slot" id="kakao-ad-slot">
+        <!-- 카카오 광고 인서트: 실제 배포 전 카카오 관리자에서 단위 확인 필요 -->
+        <ins class="kakao_ad_area"
+             style="display:none;"
+             data-ad-unit="DAN-zaoVahGFL19x5VCC"
+             data-ad-width="160"
+             data-ad-height="600"></ins>
+      </div>
     </div>
 
   </div>
@@ -124,6 +131,9 @@
   <div class="title" id="detailTitle"></div>
   <div class="content" id="detailContent"></div>
 </div>
+
+<!-- 카카오 광고 스크립트 (페이지에 한 번만 포함) -->
+<script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
 
 <script src="assets/js/app.js"></script>
 </body>
