@@ -34,16 +34,24 @@ const ageNum = $id('ageNum');
 // 데이터 로드
 async function loadData(){
   try{
+    // index.html, assets/, data/ 가 같은 루트에 있을 때 안전한 상대경로 사용
+    const base = './';
     const [symRes, disRes] = await Promise.all([
-      fetch('/data/symptoms.json'),
-      fetch('/data/disease_map.json')
+      fetch(base + 'data/symptoms.json'),
+      fetch(base + 'data/disease_map.json')
     ]);
+
+    // 상태 체크(404 등 명확히 잡기)
+    if(!symRes.ok || !disRes.ok){
+      throw new Error(`fetch error: symptoms ${symRes.status}, disease_map ${disRes.status}`);
+    }
+
     App.data.symptoms = await symRes.json();
     App.data.diseaseMap = await disRes.json();
     initUI();
   }catch(e){
-    console.error('데이터 로드 실패', e);
-    alert('데이터 로드에 실패했습니다. 파일 위치를 확인하세요.');
+    console.error('데이터 로드 실패(경로/파일/서버 확인 필요):', e);
+    alert('데이터 로드에 실패했습니다. 개발자 도구의 Network/Console 로그를 확인해주세요.');
   }
 }
 
@@ -381,3 +389,4 @@ function showCopyNote(success=true, msg=''){
 document.addEventListener('DOMContentLoaded', ()=>{
   loadData();
 });
+
