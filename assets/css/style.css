@@ -47,47 +47,18 @@ textarea#advancedInput{width:100%;height:120px;border-radius:10px;border:1px sol
 button.generate-fallback{margin-top:8px;padding:8px 10px;border-radius:8px;background:#3f6cff;color:#fff;border:none;cursor:pointer}
 .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
 
-/* 전면 왼쪽 고정 광고(overlay) */
-.ad-overlay {
+/* 좌측 고정 광고 스타일 */
+.ad-slot-left {
   position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
+  left: 12px;
+  bottom: 80px;
   width: 160px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2147483646;
-  pointer-events: none;
+  z-index: 1200;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  display: block;
 }
-.ad-overlay .kakao_ad_area {
-  pointer-events: auto;
-  display: block !important;
-}
-.ad-overlay .ad-close {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  background: rgba(0,0,0,0.6);
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 4px 6px;
-  font-size: 12px;
-  cursor: pointer;
-  pointer-events: auto;
-}
-/* 빨간 대체 박스 (요청하신 강조 색상) */
-.ad-fallback-red {
-  background: #ff4d4f; /* 밝은 빨강 */
-  color: #fff;
-  border-radius: 8px;
-  padding: 12px;
-  font-weight: 700;
-  text-align: center;
-  max-width: 140px;
-  pointer-events: auto;
-}
-@media (max-width:900px){
-  .ad-overlay { display:none; }
+@media (max-width: 900px) {
+  .ad-slot-left { display: none; }
 }
