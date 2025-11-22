@@ -73,14 +73,7 @@
         </div>
       </div>
 
-      <div class="ad-slot" id="kakao-ad-left" style="margin-top:16px">
-        <!-- 좌측 광고 슬롯: 여기에 광고 인서트가 들어갑니다 -->
-        <ins class="kakao_ad_area"
-             style="display:none;"
-             data-ad-unit="DAN-zaoVahGFL19x5VCC"
-             data-ad-width="160"
-             data-ad-height="600"></ins>
-      </div>
+      <div class="ad-slot" style="margin-top:16px">광고 슬롯 (좌측 하단)</div>
     </div>
 
     <!-- CENTER: 증상 검색 + 리스트 -->
@@ -95,20 +88,14 @@
         </div>
       </div>
 
-      <div class="category-row" id="categoryRow">
-        <button class="cat-btn" data-cat="head">머리/얼굴</button>
-        <button class="cat-btn" data-cat="neck">목</button>
-        <button class="cat-btn" data-cat="upper">상체(가슴/팔)</button>
-        <button class="cat-btn" data-cat="lower">하체(복부/다리)</button>
-        <button class="cat-btn" data-cat="general">전신</button>
-      </div>
+      <div class="category-row" id="categoryRow"></div>
 
       <div class="symptom-list" id="symptomList" tabindex="0"></div>
 
       <div style="margin-top:12px" class="muted">우클릭 또는 모바일 롱프레스 → 증상별 상세 설명 보기</div>
     </div>
 
-    <!-- RIGHT: 고급 입력 & 질환 추천 & 광고 -->
+    <!-- RIGHT: 고급 입력 & 질환 추천 -->
     <div class="card">
       <div class="section-title">3) 고급 입력 / 의심 질환(자동 추천)</div>
       <div class="muted">직접 증상 입력 또는 자동 추천된 의심 질환을 확인하세요.</div>
@@ -120,7 +107,8 @@
       </div>
 
       <div style="margin-top:12px" class="section-title">광고(우측)</div>
-      <div class="ad-slot" id="kakao-ad-right">
+      <div class="ad-slot" id="kakao-ad-slot">
+        <!-- 카카오 광고 인서트: 실제 배포 전 카카오 관리자에서 단위 확인 필요 -->
         <ins class="kakao_ad_area"
              style="display:none;"
              data-ad-unit="DAN-zaoVahGFL19x5VCC"
@@ -146,27 +134,6 @@
 
 <!-- 카카오 광고 스크립트 (페이지에 한 번만 포함) -->
 <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
-
-<!-- 광고 인서트 활성화 스크립트: ba.min.js 로드 후 ins 표시 보장 -->
-<script>
-(function ensureKakaoAdVisible(){
-  function showIns(id){
-    const ins = document.querySelector('#' + id + ' .kakao_ad_area');
-    if(!ins) return;
-    ins.style.display = 'block';
-  }
-  window.addEventListener('load', ()=>{
-    setTimeout(()=>{ showIns('kakao-ad-left'); showIns('kakao-ad-right'); }, 800);
-  });
-  ['kakao-ad-left','kakao-ad-right'].forEach(id=>{
-    const slot = document.getElementById(id);
-    if(slot){
-      const mo = new MutationObserver(()=> showIns(id));
-      mo.observe(slot, {childList:true, subtree:true});
-    }
-  });
-})();
-</script>
 
 <script src="assets/js/app.js"></script>
 </body>
