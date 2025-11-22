@@ -26,7 +26,7 @@
 
   <div class="layout">
 
-    <!-- LEFT: 설정 -->
+    <!-- LEFT: 설정 + 좌측 고정 광고 슬롯 -->
     <div class="card">
       <div class="section-title">1) 검사 설정</div>
 
@@ -73,7 +73,14 @@
         </div>
       </div>
 
-      <div class="ad-slot" style="margin-top:16px">광고 슬롯 (좌측 하단)</div>
+      <div class="ad-slot ad-slot-left" id="kakao-ad-left" style="margin-top:16px">
+        <!-- 좌측 광고 슬롯 -->
+        <ins class="kakao_ad_area"
+             style="display:none;"
+             data-ad-unit="DAN-zaoVahGFL19x5VCC"
+             data-ad-width="160"
+             data-ad-height="600"></ins>
+      </div>
     </div>
 
     <!-- CENTER: 증상 검색 + 리스트 -->
@@ -88,14 +95,20 @@
         </div>
       </div>
 
-      <div class="category-row" id="categoryRow"></div>
+      <div class="category-row" id="categoryRow">
+        <button class="cat-btn" data-cat="head">머리/얼굴</button>
+        <button class="cat-btn" data-cat="neck">목</button>
+        <button class="cat-btn" data-cat="upper">상체(가슴/팔)</button>
+        <button class="cat-btn" data-cat="lower">하체(복부/다리)</button>
+        <button class="cat-btn" data-cat="general">전신</button>
+      </div>
 
       <div class="symptom-list" id="symptomList" tabindex="0"></div>
 
       <div style="margin-top:12px" class="muted">우클릭 또는 모바일 롱프레스 → 증상별 상세 설명 보기</div>
     </div>
 
-    <!-- RIGHT: 고급 입력 & 질환 추천 -->
+    <!-- RIGHT: 고급 입력 & 추천 & 우측 광고 -->
     <div class="card">
       <div class="section-title">3) 고급 입력 / 의심 질환(자동 추천)</div>
       <div class="muted">직접 증상 입력 또는 자동 추천된 의심 질환을 확인하세요.</div>
@@ -107,7 +120,13 @@
       </div>
 
       <div style="margin-top:12px" class="section-title">광고(우측)</div>
-      <div class="ad-slot">광고 슬롯 (우측)</div>
+      <div class="ad-slot" id="kakao-ad-right">
+        <ins class="kakao_ad_area"
+             style="display:none;"
+             data-ad-unit="DAN-zaoVahGFL19x5VCC"
+             data-ad-width="160"
+             data-ad-height="600"></ins>
+      </div>
     </div>
 
   </div>
@@ -125,90 +144,61 @@
   <div class="content" id="detailContent"></div>
 </div>
 
-<!-- 전면 왼쪽 고정 광고 오버레이 (모든 UI 앞에 위치) -->
-<div class="ad-overlay" id="global-ad-overlay" role="complementary" aria-label="광고 영역">
-  <button class="ad-close" id="adCloseBtn" aria-label="광고 닫기">✕</button>
-  <ins class="kakao_ad_area"
-       style="display:none;"
-       data-ad-unit="DAN-zaoVahGFL19x5VCC"
-       data-ad-width="160"
-       data-ad-height="600"></ins>
-  <div class="ad-fallback-red" id="adFallback" style="display:none;">
-    광고 영역 — 현재 광고가 준비되지 않았습니다.
-  </div>
-</div>
-
-<!-- 카카오 광고 스크립트 (한 번만 포함) -->
+<!-- 카카오 광고 스크립트 (페이지에 한 번만 포함) -->
 <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
 
-<!-- 광고 초기화 / 닫기 / 대체 콘텐츠 처리 (빨간색 대체 박스 포함) -->
+<!-- 광고 초기화·지연 로드 스크립트 -->
 <script>
-(async function setupGlobalAd(){
-  const overlay = document.getElementById('global-ad-overlay');
-  const ins = overlay.querySelector('.kakao_ad_area');
-  const fallback = document.getElementById('adFallback');
-  const closeBtn = document.getElementById('adCloseBtn');
-  const STORAGE_KEY = 'globalAdClosed_v1';
+(function initKakaoAds(){
+  const LEFT_ID = 'kakao-ad-left';
+  const RIGHT_ID = 'kakao-ad-right';
 
-  // 닫기 상태 확인
-  if(localStorage.getItem(STORAGE_KEY) === '1'){
-    overlay.style.display = 'none';
-    return;
-  }
-
-  // ba 스크립트 보장(이미 있으면 패스)
-  function ensureBa(){
+  function ensureBaScript(){
+    if(Array.from(document.scripts).some(s=>s.src && s.src.includes('t1.daumcdn.net'))) return Promise.resolve();
     return new Promise((resolve)=>{
-      const existing = Array.from(document.scripts).find(s=>s.src && s.src.includes('t1.daumcdn.net'));
-      if(existing) {
-        if(existing.readyState === 'complete' || existing.readyState === 'loaded') return resolve(true);
-        existing.addEventListener('load', ()=>resolve(true));
-        existing.addEventListener('error', ()=>resolve(false));
-        return;
-      }
       const s = document.createElement('script');
       s.src = "//t1.daumcdn.net/kas/static/ba.min.js";
       s.async = true;
-      s.onload = ()=> resolve(true);
-      s.onerror = ()=> resolve(false);
+      s.onload = resolve;
+      s.onerror = ()=>{ console.warn('[KAKAO-AD] ba.min.js load failed'); resolve(); };
       document.head.appendChild(s);
     });
   }
 
-  const ok = await ensureBa();
-  if(ok){
-    // 광고 스크립트가 있으면 ins 보이게
+  function showIns(id){
+    const ins = document.querySelector('#' + id + ' .kakao_ad_area');
+    if(!ins) return;
     ins.style.display = 'block';
-  } else {
-    // 로드 실패 시 빨간색 대체박스 노출
-    ins.style.display = 'none';
-    fallback.style.display = 'block';
   }
 
-  // 일정 시간 후에도 광고가 실제로 렌더링되지 않으면 대체박스(red) 표시
-  setTimeout(()=> {
-    // 실제 광고는 iframe이나 img로 렌더링됨
-    const rendered = ins.querySelectorAll('iframe, img').length > 0;
-    if(!rendered){
-      ins.style.display = 'none';
-      fallback.style.display = 'block';
-    } else {
-      fallback.style.display = 'none';
-    }
-  }, 4500); // 4.5초 후 판단
+  function observeAndLoad(){
+    const el = document.getElementById(LEFT_ID);
+    if(!el) return;
+    const io = new IntersectionObserver((entries, obs)=>{
+      entries.forEach(async entry=>{
+        if(entry.isIntersecting){
+          await ensureBaScript();
+          showIns(LEFT_ID);
+          obs.unobserve(el);
+        }
+      });
+    }, {root: null, rootMargin: '400px 0px'});
+    io.observe(el);
+  }
 
-  // 닫기 처리 (한 번 닫으면 로컬스토리지에 저장)
-  closeBtn.addEventListener('click', ()=> {
-    overlay.style.display = 'none';
-    localStorage.setItem(STORAGE_KEY, '1');
+  window.addEventListener('load', ()=>{
+    setTimeout(()=> {
+      showIns(LEFT_ID);
+      showIns(RIGHT_ID);
+    }, 800);
+    observeAndLoad();
   });
 
-  // ESC로도 닫기
-  document.addEventListener('keydown', (e)=> {
-    if(e.key === 'Escape'){
-      overlay.style.display = 'none';
-      localStorage.setItem(STORAGE_KEY, '1');
-    }
+  ['kakao-ad-left','kakao-ad-right'].forEach(id=>{
+    const slot = document.getElementById(id);
+    if(!slot) return;
+    const mo = new MutationObserver(()=> showIns(id));
+    mo.observe(slot, {childList:true, subtree:true});
   });
 
 })();
